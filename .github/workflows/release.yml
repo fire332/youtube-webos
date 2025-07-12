@@ -26,9 +26,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Dependencies
         uses: ./.github/actions/setup-deps
-      - run: npm run build
-      - run: npm run package
-      - run: npm run manifest
+      - run: pnpm run build
+      - run: pnpm run package
+      - run: pnpm run manifest
 
       - name: Retrieve commit URL
         if: ${{ !env.IsTag }}

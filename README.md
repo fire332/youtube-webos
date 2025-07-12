@@ -66,9 +66,9 @@ git clone https://github.com/webosbrew/youtube-webos.git
 cd youtube-webos
 
 # Install dependencies (need to do this only when updating local repository / package.json is changed)
-npm install
+pnpm install
 
-npm run build && npm run package
+pnpm run build && pnpm run package
 ```
 
 ## Development TV setup
@@ -82,14 +82,14 @@ This is partially based on <https://webostv.developer.lge.com/develop/getting-st
 
 - Install Developer Mode app from Content Store
 - Enable Developer Mode
-- Enable key server and download TV's private key: `http://TV_IP:9991/webos_rsa`  
+- Enable key server and download TV's private key: `http://TV_IP:9991/webos_rsa`
   The key must be saved under `~/.ssh` (or `%USERPROFILE%\.ssh` on Windows)
 - Configure the device using `ares-setup-device` (`-a` may need to be replaced with `-m` if device named `webos` is already configured)
   - `PASSPHRASE` is the 6-character passphrase printed on screen in developer mode app
   - `privatekey` path is relative to `${HOME}/.ssh` (Windows: `%USERPROFILE%\.ssh`)
 
 ```sh
-ares-setup-device -a webos -i "username=prisoner" -i "privatekey=webos_rsa" -i "passphrase=PASSPHRASE" -i "host=TV_IP" -i "port=9922"
+pnpm exec ares-setup-device -a webos -i "username=prisoner" -i "privatekey=webos_rsa" -i "passphrase=PASSPHRASE" -i "host=TV_IP" -i "port=9922"
 ```
 
 ### Configuring webOS CLI tools with Homebrew Channel / root
@@ -102,13 +102,13 @@ ares-setup-device -a webos -i "username=prisoner" -i "privatekey=webos_rsa" -i "
   - `privatekey` path is relative to `${HOME}/.ssh` (Windows: `%USERPROFILE%\.ssh`)
 
 ```sh
-ares-setup-device -a webos -i "username=root" -i "privatekey=id_rsa" -i "passphrase=SSH_KEY_PASSPHRASE" -i "host=TV_IP" -i "port=22"
+pnpm exec ares-setup-device -a webos -i "username=root" -i "privatekey=id_rsa" -i "passphrase=SSH_KEY_PASSPHRASE" -i "host=TV_IP" -i "port=22"
 ```
 
 ## Installation
 
 ```sh
-npm run deploy
+pnpm run deploy
 ```
 
 ## Launching
@@ -116,11 +116,11 @@ npm run deploy
 - The app will be available in the TV's app list. You can also launch it using the webOS CLI tools.
 
 ```sh
-npm run launch
+pnpm run launch
 ```
 
 To jump immediately into some specific video use:
 
 ```sh
-npm run launch -- -p '{"contentTarget":"v=F8PGWLvn1mQ"}'
+pnpm run launch -- -p '{"contentTarget":"v=F8PGWLvn1mQ"}'
 ```
