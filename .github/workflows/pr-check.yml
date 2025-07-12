@@ -1,0 +1,55 @@
+name: PR Check
+
+on: [pull_request]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tsc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-deps
+
+      - name: Lint with TypeScript
+        uses: EPMatt/reviewdog-action-tsc@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-check
+          filter_mode: nofilter
+          fail_on_error: true
+          tsc_flags: '-b'
+
+  eslint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: ./.github/actions/setup-deps
+
+      - name: Lint with ESLint
+        uses: reviewdog/action-eslint@v1
+        with:
+          reporter: github-pr-check
+          filter_mode: nofilter
+          fail_level: any
+          eslint_flags: --max-warnings=0 .
+
+  prettier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: ./.github/actions/setup-deps
+
+      - uses: EPMatt/reviewdog-action-prettier@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-check

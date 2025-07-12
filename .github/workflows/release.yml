@@ -4,8 +4,13 @@ on:
   push:
     branches:
       - '!*'
+      - 'main'
     tags:
       - 'v*.*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_type }}
+  cancel-in-progress: true
 
 jobs:
   build-and-release:
@@ -14,28 +19,30 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: npm
-
-      - run: npm ci
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-deps
       - run: npm run build
       - run: npm run package
       - run: npm run manifest
 
+      - name: Retrieve commit URL
+        if: github.ref_type == 'branch'
+        id: commit-url
+        shell: bash
+        run: echo "value=$(gh browse ${{ github.sha}} -n)" >> $GITHUB_OUTPUT
+
       - name: Create release
         uses: ncipollo/release-action@v1
+        env:
+          IsTag: ${{ github.ref_type == 'tag' }}
         with:
-          name: 'Release ${{ github.ref }}'
-          prerelease: true
-          draft: false
+          name: ${{ env.IsTag && format('Release {0}', github.ref_name) || 'Upcoming Release' }}
+          body: ${{ !env.IsTag && format('Built from [this commit]({1}).', github.sha, steps.commit-url.outputs.value) || '' }}
+          prerelease: ${{ !env.IsTag }}
+          commit: main
+          tag: ${{ env.IsTag && github.ref_name || 'pre-release' }}
+          generateReleaseNotes: true
           allowUpdates: true
-          omitNameDuringUpdate: true
-          omitBodyDuringUpdate: true
-          omitDraftDuringUpdate: true
-          omitPrereleaseDuringUpdate: true
+          updateOnlyUnreleased: true
           artifacts: '*.ipk,*.manifest.json'
